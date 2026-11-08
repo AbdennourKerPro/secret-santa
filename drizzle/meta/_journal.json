@@ -8,6 +8,13 @@
       "when": 1794155421209,
       "tag": "0000_bored_roland_deschain",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794166931665,
+      "tag": "0001_known_yellow_claw",
+      "breakpoints": true
     }
   ]
 }

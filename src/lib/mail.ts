@@ -27,7 +27,7 @@ export async function sendMail(mail: Mail): Promise<void> {
 }
 
 /** Email-safe layout: inline styles, no web fonts, no animation. */
-function layout(title: string, bodyHtml: string, button: { label: string; url: string }): string {
+function layout(title: string, bodyHtml: string, button: { label: string; url: string }, note = "Ce lien est personnel et secret : ne le transfère à personne."): string {
   return `<!doctype html><html lang="fr"><body style="margin:0;background:#fbf6ef;font-family:Arial,Helvetica,sans-serif;color:#2a1a1f">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden">
@@ -35,7 +35,7 @@ function layout(title: string, bodyHtml: string, button: { label: string; url: s
 <tr><td style="height:4px;background:#d4a64a;line-height:4px;font-size:0">&nbsp;</td></tr>
 <tr><td style="padding:28px 24px;font-size:16px;line-height:1.5">${bodyHtml}
 <p style="text-align:center;margin:28px 0"><a href="${esc(button.url)}" style="background:#c41e3a;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 28px;border-radius:12px;display:inline-block">${esc(button.label)}</a></p>
-<p style="font-size:13px;color:#6b5a5e">Ce lien est personnel et secret : ne le transfère à personne.</p>
+<p style="font-size:13px;color:#6b5a5e">${esc(note)}</p>
 </td></tr></table></td></tr></table></body></html>`;
 }
 
@@ -62,5 +62,21 @@ export function participantMail(p: {
 <p>Échange des cadeaux : <strong>${esc(when)}</strong><br>Budget : <strong>${p.budget}&nbsp;${esc(p.currency)}</strong></p>${msg}
 <p>Clique ci-dessous pour découvrir à qui tu offres un cadeau.</p>`, { label: "Découvrir mon destinataire", url: p.url }),
     text: `Bonjour ${p.participantName}, le tirage du Secret Santa « ${p.santaName} » est fait. Échange le ${when}, budget ${p.budget} ${p.currency}.${p.message ? `\n${p.message}` : ""}\nDécouvre ton destinataire (lien secret) : ${p.url}`,
+  };
+}
+
+/**
+ * Heads-up for a new anonymous message. It never carries the text, the sender's name or a personal link
+ * (links are only stored hashed): the reader returns through the link of their draw email.
+ */
+export function messageMail(p: { santaName: string; toName: string; fromGiver: boolean; senderName: string }): Content {
+  const who = p.fromGiver ? "Ton Père Noël secret" : p.senderName;
+  const action = p.fromGiver ? "t'a écrit" : "t'a répondu";
+  return {
+    subject: `${who} ${action} (Secret Santa « ${p.santaName} »)`,
+    html: layout("Un nouveau message", `<p>Bonjour ${esc(p.toName)},</p>
+<p><strong>${esc(who)}</strong> ${action} dans le Secret Santa <strong>${esc(p.santaName)}</strong>.</p>
+<p>Pour le lire, rouvre ton lien personnel, celui du mail du tirage, et va dans l'onglet « Messages ».</p>`, { label: "Ouvrir Secret Santa", url: appUrl() }, "Pour garder le secret, ce mail ne contient ni le message ni de lien personnel."),
+    text: `Bonjour ${p.toName}, ${who} ${action} dans le Secret Santa « ${p.santaName} ». Pour le lire, rouvre ton lien personnel (celui du mail du tirage) et va dans l'onglet « Messages ».`,
   };
 }

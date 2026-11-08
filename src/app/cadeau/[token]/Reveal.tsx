@@ -5,13 +5,14 @@ import { useState } from "react";
 import { MascotIcon } from "@/components/mascots/Mascots";
 import { markOpened } from "./actions";
 
-export function Reveal({ token, receiverName }: { token: string; receiverName: string }) {
+export function Reveal({ token, receiverName, onOpen }: { token: string; receiverName: string; onOpen?: () => void }) {
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
   const dur = reduce ? 0.2 : 1.2;
 
   const unwrap = () => {
     setOpen(true);
+    onOpen?.();
     void markOpened(token).catch(() => {});
   };
 
