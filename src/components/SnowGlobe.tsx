@@ -1,3 +1,4 @@
+import { FLAKE_PATHS } from "@/lib/flakes";
 import { Elf, Reindeer, Santa } from "./mascots/Mascots";
 
 // Deterministic "random" so server and client render the same flakes.
@@ -7,12 +8,14 @@ function seeded(n: number) {
   return Array.from({ length: n }, () => ({
     x: 50 + r() * 300,
     y: 30 + r() * 120,
-    r: 1.2 + r() * 2.6,
-    dur: 5 + r() * 6,
-    delay: -r() * 10,
+    size: 3 + r() * 5,
+    dur: 6 + r() * 6,
+    delay: -r() * 12,
+    variant: Math.floor(r() * 3),
+    spin: 4 + r() * 6,
   }));
 }
-const FLAKES = seeded(34);
+const FLAKES = seeded(26);
 
 /** Animated snow globe with Santa, a reindeer and an elf. Purely decorative. */
 export function SnowGlobe({ className = "" }: { className?: string }) {
@@ -42,6 +45,9 @@ export function SnowGlobe({ className = "" }: { className?: string }) {
           <stop offset="0%" stopColor="#fff3c4" />
           <stop offset="100%" stopColor="#f0a83a" />
         </radialGradient>
+        {FLAKE_PATHS.map((d, i) => (
+          <path key={i} id={`g-flake-${i}`} d={d} stroke="#fff" strokeWidth="0.13" strokeLinecap="round" fill="none" />
+        ))}
         <clipPath id="g-clip">
           <circle cx="200" cy="200" r="166" />
         </clipPath>
@@ -97,14 +103,11 @@ export function SnowGlobe({ className = "" }: { className?: string }) {
         {/* snow inside the globe */}
         <g className="globe-snow">
           {FLAKES.map((f, i) => (
-            <circle
-              key={i}
-              cx={f.x}
-              cy={f.y}
-              r={f.r}
-              fill="#fff"
-              style={{ animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s` }}
-            />
+            <g key={i} className="globe-flake" style={{ animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s` }}>
+              <g transform={`translate(${f.x.toFixed(1)} ${f.y.toFixed(1)}) scale(${f.size.toFixed(2)})`}>
+                <use href={`#g-flake-${f.variant}`} className="flake-spin" style={{ animationDuration: `${f.spin}s` }} />
+              </g>
+            </g>
           ))}
         </g>
       </g>

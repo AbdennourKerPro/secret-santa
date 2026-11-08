@@ -102,7 +102,7 @@ body {
 .globe-halo { transform-origin: 50% 50%; animation: halo 5s ease-in-out infinite; }
 @keyframes halo { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.04); } }
 
-.globe-snow circle { animation-name: globe-fall; animation-timing-function: linear; animation-iteration-count: infinite; }
+.globe-flake { animation-name: globe-fall; animation-timing-function: linear; animation-iteration-count: infinite; }
 @keyframes globe-fall {
   0% { transform: translate(0, -40px); opacity: 0; }
   10% { opacity: 0.95; }
@@ -111,12 +111,16 @@ body {
   100% { transform: translate(-6px, 250px); opacity: 0; }
 }
 
+/* `use` needs its own box: spin the crystal around its centre */
+.flake-spin { transform-box: fill-box; transform-origin: 50% 50%; animation: flake-spin linear infinite; }
+@keyframes flake-spin { to { transform: rotate(360deg); } }
+
 .float-slow { animation: float 6s ease-in-out infinite; }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
 @media (prefers-reduced-motion: reduce) {
   .santa-wave, .mascot-breathe, .deer-bob, .nose-glow, .elf-hop, .bell-ring, .mascot-blink,
-  .twinkle, .star-glow, .window-flicker, .globe-halo, .globe-snow circle, .float-slow {
+  .twinkle, .star-glow, .window-flicker, .globe-halo, .globe-flake, .flake-spin, .float-slow {
     animation: none !important;
   }
 }
