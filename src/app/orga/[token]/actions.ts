@@ -7,9 +7,9 @@ import { drawCycle } from "@/lib/draw";
 import { appUrl, participantMail, sendMail } from "@/lib/mail";
 import { participantsOf, santaByOrganizerToken } from "@/lib/queries";
 import { hashToken, newToken } from "@/lib/tokens";
-import { fieldErrors, MAX_PARTICIPANTS, participantSchema, type FieldErrors } from "@/lib/validation";
+import { eventSchema, fieldErrors, MAX_PARTICIPANTS, participantSchema, type FieldErrors } from "@/lib/validation";
 
-export type ActionState = { ok?: string; error?: string; errors?: FieldErrors };
+export type ActionState = { ok?: string; error?: string; errors?: FieldErrors; values?: Record<string, string> };
 
 // Every action re-checks the organizer token: pages being private is not enough.
 async function authorize(token: string) {
@@ -23,6 +23,22 @@ function mailFor(s: typeof santa.$inferSelect, p: { name: string }, playerToken:
     santaName: s.name, participantName: p.name, organizerName: s.organizerName, exchangeDate: s.exchangeDate,
     budget: s.budget, currency: s.currency, message: s.message, url: `${appUrl()}/cadeau/${playerToken}`,
   });
+}
+
+/** Name, date, budget and message stay editable after the draw: participants read them live on their page. */
+export async function updateEvent(token: string, _prev: ActionState, formData: FormData): Promise<ActionState> {
+  const s = await authorize(token);
+  const input = {
+    name: String(formData.get("name") ?? ""),
+    exchangeDate: String(formData.get("exchangeDate") ?? ""),
+    budget: String(formData.get("budget") ?? ""),
+    message: String(formData.get("message") ?? ""),
+  };
+  const parsed = eventSchema.safeParse(input);
+  if (!parsed.success) return { errors: fieldErrors(parsed.error), values: input }; // React resets the form: send back what was typed
+  await db().update(santa).set(parsed.data).where(eq(santa.id, s.id));
+  revalidatePath(`/orga/${token}`);
+  return { ok: "Informations mises à jour." };
 }
 
 export async function addParticipant(token: string, _prev: ActionState, formData: FormData): Promise<ActionState> {

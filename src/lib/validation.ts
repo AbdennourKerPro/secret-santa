@@ -18,6 +18,8 @@ export const createSantaSchema = z.object({
   organizerPlays: z.boolean().default(false),
 });
 
+export const eventSchema = createSantaSchema.pick({ name: true, exchangeDate: true, budget: true, message: true });
+
 export const participantSchema = z.object({ name: text(60), email });
 
 export const MAX_WISHLIST = 1000;
