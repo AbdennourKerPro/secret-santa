@@ -9,15 +9,19 @@ const INK = "#2a1a1f";
 const SKIN = "#f6c9a8";
 const CHEEK = "#f08a8a";
 
-export function Santa() {
+export function Santa({ pose = "wave", glasses = false }: { pose?: "wave" | "hold"; glasses?: boolean } = {}) {
   return (
     <g className="mascot-breathe">
       {/* boots */}
       <rect x={-20} y={-12} width={15} height={12} rx={4} fill={INK} />
       <rect x={5} y={-12} width={15} height={12} rx={4} fill={INK} />
       {/* left arm, resting */}
-      <path d="M-22 -44 Q-34 -34 -31 -24" stroke="#c41e3a" strokeWidth={10} strokeLinecap="round" fill="none" />
-      <circle cx={-31} cy={-22} r={5.5} fill={INK} />
+      {pose === "wave" && (
+        <>
+          <path d="M-22 -44 Q-34 -34 -31 -24" stroke="#c41e3a" strokeWidth={10} strokeLinecap="round" fill="none" />
+          <circle cx={-31} cy={-22} r={5.5} fill={INK} />
+        </>
+      )}
       {/* body */}
       <path d="M-27 -12 Q-31 -52 0 -58 Q31 -52 27 -12 Z" fill="#c41e3a" />
       <path d="M-2 -56 L-2 -14" stroke="#fff" strokeWidth={5} strokeLinecap="round" />
@@ -25,10 +29,12 @@ export function Santa() {
       <rect x={-27} y={-37} width={54} height={6} fill={INK} />
       <rect x={-6} y={-39} width={12} height={10} rx={2} fill="none" stroke="#d4a64a" strokeWidth={2.5} />
       {/* right arm, waving */}
-      <g className="santa-wave">
-        <path d="M21 -46 Q34 -54 40 -68" stroke="#c41e3a" strokeWidth={10} strokeLinecap="round" fill="none" />
-        <circle cx={41} cy={-71} r={5.5} fill={INK} />
-      </g>
+      {pose === "wave" && (
+        <g className="santa-wave">
+          <path d="M21 -46 Q34 -54 40 -68" stroke="#c41e3a" strokeWidth={10} strokeLinecap="round" fill="none" />
+          <circle cx={41} cy={-71} r={5.5} fill={INK} />
+        </g>
+      )}
       {/* beard + face */}
       <path d="M-17 -62 Q-20 -38 0 -32 Q20 -38 17 -62 Z" fill="#fff" />
       <circle cx={0} cy={-66} r={13} fill={SKIN} />
@@ -40,6 +46,22 @@ export function Santa() {
       </g>
       <path d="M-9 -59 Q-4 -64 0 -60 Q4 -64 9 -59 Q4 -56 0 -58 Q-4 -56 -9 -59 Z" fill="#fff" />
       <circle cx={0} cy={-63} r={2.4} fill="#e8a088" />
+      {glasses && (
+        <g stroke="#d4a64a" strokeWidth={1.4} fill="rgba(255,255,255,0.25)">
+          <circle cx={-5.5} cy={-68} r={4.2} />
+          <circle cx={5.5} cy={-68} r={4.2} />
+          <path d="M-1.3 -68 H1.3" fill="none" />
+        </g>
+      )}
+      {/* arms forward, holding something in front */}
+      {pose === "hold" && (
+        <>
+          <path d="M-22 -46 Q-28 -36 -12 -32" stroke="#c41e3a" strokeWidth={10} strokeLinecap="round" fill="none" />
+          <path d="M22 -46 Q28 -36 12 -32" stroke="#c41e3a" strokeWidth={10} strokeLinecap="round" fill="none" />
+          <circle cx={-10} cy={-32} r={5.5} fill={INK} />
+          <circle cx={10} cy={-32} r={5.5} fill={INK} />
+        </>
+      )}
       {/* hat */}
       <path d="M-14 -75 Q-2 -102 22 -88 L15 -75 Z" fill="#c41e3a" />
       <rect x={-17} y={-80} width={34} height={8} rx={4} fill="#fff" />
@@ -81,9 +103,9 @@ export function Reindeer() {
   );
 }
 
-export function Elf() {
+export function Elf({ pose = "hold" }: { pose?: "hold" | "work" } = {}) {
   return (
-    <g className="elf-hop">
+    <g className={pose === "hold" ? "elf-hop" : undefined}>
       {/* curly shoes */}
       <path d="M-13 0 L-3 0 L-3 -6 L-11 -6 Q-17 -6 -17 -11" stroke="#c41e3a" strokeWidth={4} fill="#c41e3a" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M13 0 L3 0 L3 -6 L11 -6 Q17 -6 17 -11" stroke="#c41e3a" strokeWidth={4} fill="#c41e3a" strokeLinecap="round" strokeLinejoin="round" />
@@ -96,12 +118,28 @@ export function Elf() {
       <path d="M-15 -14 L-10 -42 L10 -42 L15 -14 Z" fill="#1f6b45" />
       <rect x={-12} y={-26} width={24} height={4} fill="#d4a64a" />
       <path d="M-11 -42 L-7 -37 L-3 -42 L1 -37 L5 -42 L9 -37 L11 -42 Z" fill="#c41e3a" />
-      {/* arms holding a gift */}
-      <path d="M-10 -38 Q-16 -30 -6 -26" stroke="#1f6b45" strokeWidth={6} strokeLinecap="round" fill="none" />
-      <path d="M10 -38 Q16 -30 6 -26" stroke="#1f6b45" strokeWidth={6} strokeLinecap="round" fill="none" />
-      <rect x={-8} y={-33} width={16} height={12} rx={1.5} fill="#c41e3a" />
-      <rect x={-1.5} y={-33} width={3} height={12} fill="#d4a64a" />
-      <path d="M0 -33 Q-6 -39 -3 -34 M0 -33 Q6 -39 3 -34" stroke="#d4a64a" strokeWidth={2} fill="none" />
+      {pose === "hold" ? (
+        <>
+          {/* arms holding a gift */}
+          <path d="M-10 -38 Q-16 -30 -6 -26" stroke="#1f6b45" strokeWidth={6} strokeLinecap="round" fill="none" />
+          <path d="M10 -38 Q16 -30 6 -26" stroke="#1f6b45" strokeWidth={6} strokeLinecap="round" fill="none" />
+          <rect x={-8} y={-33} width={16} height={12} rx={1.5} fill="#c41e3a" />
+          <rect x={-1.5} y={-33} width={3} height={12} fill="#d4a64a" />
+          <path d="M0 -33 Q-6 -39 -3 -34 M0 -33 Q6 -39 3 -34" stroke="#d4a64a" strokeWidth={2} fill="none" />
+        </>
+      ) : (
+        <>
+          {/* arms reaching to the right, busy wrapping */}
+          <g className="elf-work-a">
+            <path d="M8 -38 Q20 -38 26 -30" stroke="#1f6b45" strokeWidth={6} strokeLinecap="round" fill="none" />
+            <circle cx={27} cy={-29} r={3.4} fill="#f6c9a8" />
+          </g>
+          <g className="elf-work-b">
+            <path d="M-8 -36 Q12 -26 24 -24" stroke="#1f6b45" strokeWidth={6} strokeLinecap="round" fill="none" />
+            <circle cx={25} cy={-24} r={3.4} fill="#f6c9a8" />
+          </g>
+        </>
+      )}
       {/* head */}
       <path d="M-11 -52 L-19 -58 L-10 -47 Z" fill={SKIN} />
       <path d="M11 -52 L19 -58 L10 -47 Z" fill={SKIN} />

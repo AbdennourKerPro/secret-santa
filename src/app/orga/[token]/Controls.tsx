@@ -1,22 +1,38 @@
 "use client";
 
 import { useActionState } from "react";
-import { Field, inputClass, SubmitButton } from "@/components/Field";
+import { Plus } from "lucide-react";
+import { inputClass, Notice, SubmitButton } from "@/components/Field";
 import { addParticipant, runDraw, type ActionState } from "./actions";
 
 export function AddParticipantForm({ token }: { token: string }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(addParticipant.bind(null, token), {});
+  const e = state.errors ?? {};
   return (
-    <form action={action} className="grid gap-4" noValidate key={state.ok ?? "form"}>
-      <Field label="Prénom" name="name" errors={state.errors?.name}>
-        <input id="name" name="name" required maxLength={60} className={inputClass} />
-      </Field>
-      <Field label="E-mail" name="email" errors={state.errors?.email}>
-        <input id="email" name="email" type="email" required maxLength={200} className={inputClass} />
-      </Field>
-      {state.error && <p role="alert" className="font-semibold text-rouge-profond">{state.error}</p>}
-      {state.ok && <p role="status" className="font-semibold text-encre">{state.ok}</p>}
-      <div><SubmitButton pending={pending} variant="secondary">Ajouter</SubmitButton></div>
+    <form action={action} className="grid gap-3" noValidate key={state.ok ?? "form"}>
+      <div className="flex items-end gap-3">
+        <div className="grid flex-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label htmlFor="name" className="sr-only">Prénom</label>
+            <input id="name" name="name" required maxLength={60} placeholder="Prénom" className={inputClass} aria-invalid={!!e.name} />
+          </div>
+          <div>
+            <label htmlFor="email" className="sr-only">E-mail</label>
+            <input id="email" name="email" type="email" required maxLength={200} placeholder="E-mail" className={inputClass} aria-invalid={!!e.email} />
+          </div>
+        </div>
+        <button
+          type="submit"
+          disabled={pending}
+          aria-label="Ajouter ce participant"
+          className="mb-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-neige text-rouge-profond transition hover:-translate-y-0.5 hover:bg-or-pale disabled:opacity-60"
+        >
+          <Plus size={22} aria-hidden="true" />
+        </button>
+      </div>
+      {(e.name || e.email) && <Notice kind="error">{[...(e.name ?? []), ...(e.email ?? [])].join(" ")}</Notice>}
+      {state.error && <Notice kind="error">{state.error}</Notice>}
+      {state.ok && <Notice kind="ok">{state.ok}</Notice>}
     </form>
   );
 }
@@ -26,14 +42,13 @@ export function DrawButton({ token, count }: { token: string; count: number }) {
   return (
     <form
       action={action}
-      onSubmit={(e) => {
-        if (!window.confirm(`Lancer le tirage avec ${count} participants ? Il sera définitif et chacun recevra son e-mail.`)) e.preventDefault();
+      onSubmit={(ev) => {
+        if (!window.confirm(`Lancer le tirage avec ${count} participants ? Il sera définitif et chacun recevra son e-mail.`)) ev.preventDefault();
       }}
-      className="grid gap-3"
+      className="grid justify-items-center gap-3"
     >
-      {state.error && <p role="alert" className="font-semibold text-rouge-profond">{state.error}</p>}
-      {state.ok && <p role="status" className="font-semibold">{state.ok}</p>}
-      <div><SubmitButton pending={pending}>Lancer le tirage</SubmitButton></div>
+      {state.error && <Notice kind="error">{state.error}</Notice>}
+      <SubmitButton pending={pending}>Lancer le tirage</SubmitButton>
     </form>
   );
 }

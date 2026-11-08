@@ -124,3 +124,38 @@ body {
     animation: none !important;
   }
 }
+
+/* ---------- Scenes ---------- */
+.sleigh-fly { animation: sleigh-fly 22s linear infinite; animation-delay: 1.5s; transform: translateX(-320px); }
+@keyframes sleigh-fly {
+  0% { transform: translate(-320px, 30px) rotate(-4deg); }
+  15% { transform: translate(calc(25vw - 160px), 6px) rotate(-6deg); }
+  30% { transform: translate(calc(55vw - 160px), 18px) rotate(-3deg); }
+  48% { transform: translate(calc(100vw + 40px), -10px) rotate(-6deg); }
+  100% { transform: translate(calc(100vw + 40px), -10px) rotate(-6deg); }
+}
+.gallop { transform-origin: 50% 100%; animation: gallop 0.6s ease-in-out infinite; }
+@keyframes gallop { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(-3deg); } }
+
+.elf-work-a { transform-origin: 0% 50%; animation: elf-work 0.9s ease-in-out infinite; }
+.elf-work-b { transform-origin: 0% 50%; animation: elf-work 0.9s ease-in-out infinite reverse; }
+@keyframes elf-work { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(8deg); } }
+
+.ribbon-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: ribbon 4.5s ease-in-out infinite; }
+.ribbon-late { animation-name: ribbon-late; }
+@keyframes ribbon { 0%, 5% { stroke-dashoffset: 1; } 25%, 90% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 1; } }
+@keyframes ribbon-late { 0%, 25% { stroke-dashoffset: 1; } 45%, 90% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 1; } }
+.bow-pop { transform-origin: 50% 100%; animation: bow-pop 4.5s ease-in-out infinite; }
+@keyframes bow-pop { 0%, 48% { transform: scale(0); } 56% { transform: scale(1.2); } 62%, 90% { transform: scale(1); } 100% { transform: scale(0); } }
+.sparkle { transform-origin: 50% 50%; animation: sparkle 4.5s ease-out infinite; }
+@keyframes sparkle { 0%, 56% { transform: scale(0); opacity: 0; } 62% { transform: scale(1.1); opacity: 1; } 80% { transform: scale(0.6) rotate(45deg); opacity: 0; } 100% { opacity: 0; } }
+
+.list-sway { transform-origin: 50% 0%; animation: list-sway 3s ease-in-out infinite; }
+@keyframes list-sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2.5deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sleigh-fly, .gallop, .elf-work-a, .elf-work-b, .bow-pop, .sparkle, .list-sway { animation: none !important; }
+  .sleigh-fly { display: none; }
+  .ribbon-draw { animation: none !important; stroke-dashoffset: 0; }
+  .bow-pop { transform: none; }
+}
