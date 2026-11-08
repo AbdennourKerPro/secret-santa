@@ -7,6 +7,7 @@ import { participantsOf, santaByOrganizerToken } from "@/lib/queries";
 import { MAX_PARTICIPANTS } from "@/lib/validation";
 import { AddParticipantForm, DrawButton } from "./Controls";
 import { removeParticipant, resendMail } from "./actions";
+import { Remember } from "./Remember";
 
 export const metadata = { title: "Tableau de bord", robots: { index: false } };
 
@@ -37,6 +38,7 @@ async function Dashboard({ params }: { params: Promise<{ token: string }> }) {
 
   return (
     <div className="grid gap-6">
+      <Remember path={`/orga/${token}`} name={s.name} exchangeDate={s.exchangeDate} />
       <div>
         <h1 className="text-3xl">{s.name}</h1>
         <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-encre-douce">
