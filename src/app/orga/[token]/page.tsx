@@ -9,6 +9,7 @@ import { participantsOf, santaByOrganizerToken } from "@/lib/queries";
 import { MAX_PARTICIPANTS } from "@/lib/validation";
 import { AddParticipantForm, DrawButton } from "./Controls";
 import { removeParticipant, resendMail } from "./actions";
+import { EditEvent } from "./EditEvent";
 import { Remember } from "./Remember";
 
 export const metadata = { title: "Tableau de bord", robots: { index: false } };
@@ -49,6 +50,7 @@ async function Dashboard({ params }: { params: Promise<{ token: string }> }) {
           <span className="inline-flex items-center gap-1.5"><CalendarDays size={18} strokeWidth={1.5} aria-hidden="true" />{formatDate(s.exchangeDate)}</span>
           <span className="inline-flex items-center gap-1.5"><Wallet size={18} strokeWidth={1.5} aria-hidden="true" />{s.budget} {s.currency} par cadeau</span>
         </p>
+        <EditEvent token={token} name={s.name} exchangeDate={s.exchangeDate} budget={s.budget} message={s.message} drawn={drawn} />
         <SantaList className="mx-auto mt-6 w-full max-w-[240px] lg:max-w-[300px]" />
       </div>
 
