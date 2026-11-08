@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CalendarDays, Wallet } from "lucide-react";
-import { Banner } from "@/components/Banner";
-import { Card } from "@/components/Shell";
+import { Frame } from "@/components/Frame";
 import { formatDate } from "@/lib/mail";
 import { participantByToken, receiverOf } from "@/lib/queries";
 import { Reveal } from "./Reveal";
@@ -11,12 +10,11 @@ export const metadata = { title: "Ton Secret Santa", robots: { index: false } };
 
 export default function GiftPage({ params }: { params: Promise<{ token: string }> }) {
   return (
-    <>
-      <Banner />
-      <Suspense fallback={<p className="p-8 text-center text-neige">Chargement…</p>}>
+    <Frame glow="center">
+      <Suspense fallback={<p className="p-8 text-center text-or-pale/70">Chargement…</p>}>
         <Gift params={params} />
       </Suspense>
-    </>
+    </Frame>
   );
 }
 
@@ -29,23 +27,18 @@ async function Gift({ params }: { params: Promise<{ token: string }> }) {
   const { s, p } = found;
 
   return (
-    <div className="flex-1 bg-rouge-profond pb-10 pt-6">
-      <div className="mx-auto grid w-full max-w-[640px] gap-6 px-4">
-        <div className="text-center text-neige">
-          <h1 className="text-3xl">{s.name}</h1>
-          <p className="mt-1 text-or-pale">Bonjour {p.name} !</p>
-        </div>
-        <Reveal token={token} receiverName={receiver.name} />
-        <Card>
-          <h2 className="mb-3 text-xl">L&rsquo;échange</h2>
-          <ul className="grid gap-2 text-encre">
-            <li className="flex items-center gap-2"><CalendarDays size={20} strokeWidth={1.5} className="text-rouge" aria-hidden="true" />{formatDate(s.exchangeDate)}</li>
-            <li className="flex items-center gap-2"><Wallet size={20} strokeWidth={1.5} className="text-rouge" aria-hidden="true" />Budget : {s.budget} {s.currency}</li>
-          </ul>
-          {s.message && <p className="mt-4 border-l-4 border-or bg-creme px-4 py-3">{s.message}</p>}
-          <p className="mt-4 text-sm text-encre-douce">Organisé par {s.organizerName}.</p>
-        </Card>
+    <main className="mx-auto flex w-full max-w-[640px] flex-1 flex-col items-center px-5 pb-12 text-center">
+      <p className="font-script text-2xl text-or">Bonjour {p.name} !</p>
+      <h1 className="font-display text-5xl font-extralight uppercase leading-none tracking-tight text-or-pale sm:text-6xl">{s.name}</h1>
+
+      <Reveal token={token} receiverName={receiver.name} />
+
+      <div className="mt-2 flex flex-wrap justify-center gap-x-6 gap-y-1 text-or-pale/85">
+        <span className="inline-flex items-center gap-1.5"><CalendarDays size={18} strokeWidth={1.5} aria-hidden="true" />{formatDate(s.exchangeDate)}</span>
+        <span className="inline-flex items-center gap-1.5"><Wallet size={18} strokeWidth={1.5} aria-hidden="true" />{s.budget} {s.currency}</span>
       </div>
-    </div>
+      {s.message && <blockquote className="mt-5 max-w-md font-serif text-lg italic text-neige/90">« {s.message} »</blockquote>}
+      <p className="mt-4 text-sm text-or-pale/55">Organisé par {s.organizerName}</p>
+    </main>
   );
 }

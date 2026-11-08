@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { CalendarDays, Check, Eye, Mail, Trash2, Wallet } from "lucide-react";
-import { Card, Shell } from "@/components/Shell";
+import { CalendarDays, Check, Eye, Mail, RotateCw, Trash2, Wallet } from "lucide-react";
+import { Frame, PageTitle } from "@/components/Frame";
+import { MascotIcon } from "@/components/mascots/Mascots";
+import { SantaList } from "@/components/scenes/SantaList";
 import { formatDate } from "@/lib/mail";
 import { participantsOf, santaByOrganizerToken } from "@/lib/queries";
 import { MAX_PARTICIPANTS } from "@/lib/validation";
@@ -13,19 +15,20 @@ export const metadata = { title: "Tableau de bord", robots: { index: false } };
 
 export default function OrganizerPage({ params }: { params: Promise<{ token: string }> }) {
   return (
-    <Shell wide>
-      <Suspense fallback={<p className="text-encre-douce">Chargement…</p>}>
+    <Frame>
+      <Suspense fallback={<p className="px-8 text-or-pale/70">Chargement…</p>}>
         <Dashboard params={params} />
       </Suspense>
-    </Shell>
+    </Frame>
   );
 }
 
 function Status({ p, drawn }: { p: { emailSentAt: Date | null; openedAt: Date | null }; drawn: boolean }) {
-  if (!drawn) return <span className="text-encre-douce">En attente du tirage</span>;
-  if (p.openedAt) return <span className="inline-flex items-center gap-1 font-semibold text-rouge-profond"><Eye size={16} aria-hidden="true" />A ouvert son cadeau</span>;
-  if (p.emailSentAt) return <span className="inline-flex items-center gap-1"><Check size={16} aria-hidden="true" />E-mail envoyé</span>;
-  return <span className="inline-flex items-center gap-1 font-semibold text-rouge-profond"><Mail size={16} aria-hidden="true" />Envoi échoué</span>;
+  const base = "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold";
+  if (!drawn) return null;
+  if (p.openedAt) return <span className={`${base} bg-or/15 text-or`}><Eye size={14} aria-hidden="true" />A ouvert son cadeau</span>;
+  if (p.emailSentAt) return <span className={`${base} bg-white/10 text-or-pale`}><Check size={14} aria-hidden="true" />E-mail envoyé</span>;
+  return <span className={`${base} bg-[#ffb3bd]/15 text-[#ffb3bd]`}><Mail size={14} aria-hidden="true" />Envoi échoué</span>;
 }
 
 async function Dashboard({ params }: { params: Promise<{ token: string }> }) {
@@ -37,75 +40,84 @@ async function Dashboard({ params }: { params: Promise<{ token: string }> }) {
   const unsent = people.filter((p) => !p.emailSentAt).length;
 
   return (
-    <div className="grid gap-6">
+    <main className="mx-auto grid w-full max-w-5xl flex-1 gap-10 px-5 pb-12 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
       <Remember path={`/orga/${token}`} name={s.name} exchangeDate={s.exchangeDate} />
-      <div>
-        <h1 className="text-3xl">{s.name}</h1>
-        <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-encre-douce">
-          <span className="inline-flex items-center gap-1"><CalendarDays size={18} strokeWidth={1.5} aria-hidden="true" />{formatDate(s.exchangeDate)}</span>
-          <span className="inline-flex items-center gap-1"><Wallet size={18} strokeWidth={1.5} aria-hidden="true" />{s.budget} {s.currency} par cadeau</span>
+
+      <div className="lg:sticky lg:top-10 lg:self-start">
+        <PageTitle kicker={drawn ? "Les lutins s'activent" : "Le Père Noël vérifie sa liste"}>{s.name}</PageTitle>
+        <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-or-pale/80">
+          <span className="inline-flex items-center gap-1.5"><CalendarDays size={18} strokeWidth={1.5} aria-hidden="true" />{formatDate(s.exchangeDate)}</span>
+          <span className="inline-flex items-center gap-1.5"><Wallet size={18} strokeWidth={1.5} aria-hidden="true" />{s.budget} {s.currency} par cadeau</span>
         </p>
+        <SantaList className="mx-auto mt-6 w-full max-w-[240px] lg:max-w-[300px]" />
       </div>
 
-      <Card>
-        <h2 className="mb-3 text-xl">Participants ({people.length})</h2>
-        {people.length === 0 ? (
-          <p className="text-encre-douce">Personne pour l&rsquo;instant. Ajoute au moins 3 participants.</p>
-        ) : (
-          <ul className="divide-y divide-or-pale">
-            {people.map((p) => (
-              <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
-                <div>
-                  <p className="font-semibold">{p.name}</p>
-                  <p className="text-sm text-encre-douce">{p.email}</p>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Status p={p} drawn={drawn} />
+      <section aria-labelledby="participants" className="grid content-start gap-8">
+        <div>
+          <h2 id="participants" className="flex items-baseline justify-between border-b border-or-pale/25 pb-2 font-sans text-xs font-semibold uppercase tracking-[0.18em] text-or-pale/70">
+            <span>Participants</span><span className="font-display text-3xl font-extralight text-or-pale">{people.length}</span>
+          </h2>
+          {people.length === 0 ? (
+            <p className="py-6 text-or-pale/70">Personne pour l&rsquo;instant. Ajoute au moins 3 participants.</p>
+          ) : (
+            <ul className="divide-y divide-or-pale/15">
+              {people.map((p, i) => (
+                <li key={p.id} className="rise-in flex flex-wrap items-center gap-3 py-3" style={{ animationDelay: `${i * 40}ms` }}>
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rouge-profond/70 ring-1 ring-or-pale/20">
+                    <MascotIcon kind={(["santa", "reindeer", "elf"] as const)[i % 3]} size={32} />
+                  </span>
+                  <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-neige">{p.name}</p>
+                      <p className="truncate text-sm text-or-pale/60">{p.email}</p>
+                    </div>
+                    {drawn && <div className="mt-1 sm:mt-0"><Status p={p} drawn={drawn} /></div>}
+                  </div>
                   {drawn ? (
                     <form action={resendMail.bind(null, token, p.id)}>
-                      <button className="h-9 rounded-lg border border-rouge px-3 font-semibold text-rouge hover:bg-or-pale">Renvoyer</button>
+                      <button aria-label={`Renvoyer l'e-mail à ${p.name}`} title="Renvoyer" className="flex h-10 w-10 items-center justify-center rounded-full text-or-pale/70 hover:bg-white/10 hover:text-neige">
+                        <RotateCw size={18} strokeWidth={1.5} aria-hidden="true" />
+                      </button>
                     </form>
                   ) : (
                     <form action={removeParticipant.bind(null, token, p.id)}>
-                      <button aria-label={`Retirer ${p.name}`} className="flex h-9 w-9 items-center justify-center rounded-lg text-rouge hover:bg-or-pale">
+                      <button aria-label={`Retirer ${p.name}`} className="flex h-10 w-10 items-center justify-center rounded-full text-or-pale/70 hover:bg-white/10 hover:text-neige">
                         <Trash2 size={18} strokeWidth={1.5} aria-hidden="true" />
                       </button>
                     </form>
                   )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
+                </li>
+              ))}
+            </ul>
+          )}
+          {!drawn && people.length < MAX_PARTICIPANTS && (
+            <div className="mt-4"><AddParticipantForm token={token} /></div>
+          )}
+        </div>
 
-      {drawn ? (
-        <Card>
-          <h2 className="text-xl">Le tirage est fait</h2>
-          {unsent > 0 ? (
-            <p role="alert" className="mt-1 font-semibold text-rouge-profond">{unsent} e-mail(s) n&rsquo;ont pas pu partir : utilise « Renvoyer » sur les lignes concernées.</p>
-          ) : (
-            <p role="status" className="mt-1 font-semibold">Chaque participant a reçu son e-mail.</p>
-          )}
-          <p className="mt-1 text-encre-douce">Les attributions restent secrètes, même pour toi. « Renvoyer » envoie un nouveau lien à un participant qui n&rsquo;a pas reçu son e-mail (l&rsquo;ancien lien cesse de fonctionner).</p>
-        </Card>
-      ) : (
-        <>
-          {people.length < MAX_PARTICIPANTS && (
-            <Card>
-              <h2 className="mb-3 text-xl">Ajouter un participant</h2>
-              <AddParticipantForm token={token} />
-            </Card>
-          )}
-          <Card>
-            <h2 className="text-xl">Tirage au sort</h2>
-            <p className="mb-4 mt-1 text-encre-douce">
-              {people.length < 3 ? "Il faut au moins 3 participants." : "Chacun recevra par e-mail un lien secret pour découvrir son destinataire."}
-            </p>
-            {people.length >= 3 && <DrawButton token={token} count={people.length} />}
-          </Card>
-        </>
-      )}
-    </div>
+        {drawn ? (
+          <div className="rounded-3xl border border-or-pale/20 bg-white/5 p-6 text-center">
+            <p className="font-script text-3xl text-or">Le tirage est fait !</p>
+            {unsent > 0 ? (
+              <p role="alert" className="mt-2 font-semibold text-[#ffb3bd]">{unsent} e-mail(s) n&rsquo;ont pas pu partir : utilise le bouton ↻ sur les lignes concernées.</p>
+            ) : (
+              <p role="status" className="mt-2 text-neige">Chaque participant a reçu son e-mail.</p>
+            )}
+            <p className="mt-2 text-sm text-or-pale/60">Les attributions restent secrètes, même pour toi. ↻ envoie un nouveau lien (l&rsquo;ancien cesse de fonctionner).</p>
+          </div>
+        ) : (
+          <div className="grid justify-items-center gap-2 text-center">
+            {people.length >= 3 ? (
+              <>
+                <DrawButton token={token} count={people.length} />
+                <p className="text-sm text-or-pale/60">Chacun recevra par e-mail un lien secret vers son destinataire.</p>
+              </>
+            ) : (
+              <p className="text-sm text-or-pale/60">Encore {3 - people.length} participant(s) avant de pouvoir lancer le tirage.</p>
+            )}
+          </div>
+        )}
+      </section>
+    </main>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Gift } from "lucide-react";
 import { useState } from "react";
+import { MascotIcon } from "@/components/mascots/Mascots";
 import { markOpened } from "./actions";
 
 export function Reveal({ token, receiverName }: { token: string; receiverName: string }) {
@@ -16,7 +16,7 @@ export function Reveal({ token, receiverName }: { token: string; receiverName: s
   };
 
   return (
-    <div className="flex min-h-[360px] flex-col items-center justify-center text-center">
+    <div className="flex min-h-[380px] w-full flex-col items-center justify-center text-center">
       <AnimatePresence mode="wait">
         {!open ? (
           <motion.button
@@ -37,9 +37,12 @@ export function Reveal({ token, receiverName }: { token: string; receiverName: s
               <span className="absolute inset-x-0 bottom-0 top-10 block rounded-b-md bg-rouge-profond ring-1 ring-or/40">
                 <span className="absolute inset-y-0 left-1/2 w-6 -translate-x-1/2 bg-or" />
               </span>
-              <Gift className="absolute -top-8 left-1/2 -translate-x-1/2 text-or" size={36} strokeWidth={1.5} />
+              <span className="absolute -top-7 left-1/2 block h-8 w-16 -translate-x-1/2">
+                <span className="absolute left-0 top-1 h-6 w-8 rotate-[-18deg] rounded-full border-4 border-or" />
+                <span className="absolute right-0 top-1 h-6 w-8 rotate-[18deg] rounded-full border-4 border-or" />
+              </span>
             </span>
-            <span className="rounded-xl bg-neige px-6 py-3 font-semibold text-rouge-profond transition group-hover:bg-or-pale">Ouvre ton cadeau</span>
+            <span className="inline-flex h-14 items-center rounded-full bg-neige px-8 text-lg font-semibold text-rouge-profond shadow-[0_10px_40px_-10px_rgba(255,59,78,0.8)] transition group-hover:-translate-y-0.5 group-hover:bg-or-pale">Ouvre ton cadeau</span>
           </motion.button>
         ) : (
           <motion.div
@@ -49,9 +52,14 @@ export function Reveal({ token, receiverName }: { token: string; receiverName: s
             transition={{ duration: dur * 0.6, delay: reduce ? 0 : 0.3 }}
             aria-live="polite"
           >
-            <p className="font-script text-3xl text-or-pale">Tu offres un cadeau à</p>
-            <p className="mt-2 break-words font-serif text-5xl text-neige sm:text-6xl">{receiverName}</p>
-            <p className="mt-4 text-or-pale">Chut, c&rsquo;est un secret ! 🤫</p>
+            <p className="font-script text-3xl text-or">Tu offres un cadeau à</p>
+            <p className="mt-1 break-words font-display text-7xl font-extralight uppercase text-neige [text-shadow:0_0_40px_rgba(255,80,100,0.5)] sm:text-8xl">{receiverName}</p>
+            <div className="mt-4 flex items-end justify-center gap-2" aria-hidden="true">
+              <MascotIcon kind="reindeer" size={64} />
+              <MascotIcon kind="santa" size={84} />
+              <MascotIcon kind="elf" size={64} />
+            </div>
+            <p className="mt-3 text-or-pale">Chut, c&rsquo;est un secret !</p>
           </motion.div>
         )}
       </AnimatePresence>
