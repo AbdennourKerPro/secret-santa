@@ -12,7 +12,7 @@ export function formatDate(iso: string): string {
 }
 
 type Content = { subject: string; html: string; text: string };
-type Mail = Content & { to: string };
+type Mail = Content & { to: string; idempotencyKey?: string };
 
 /** Sends through Resend. Without an API key (local dev), logs the mail instead. */
 export async function sendMail(mail: Mail): Promise<void> {
@@ -22,7 +22,10 @@ export async function sendMail(mail: Mail): Promise<void> {
     return;
   }
   const from = process.env.MAIL_FROM ?? "Secret Santa <santa@abdennour.tech>";
-  const { error } = await new Resend(key).emails.send({ from, to: mail.to, subject: mail.subject, html: mail.html, text: mail.text });
+  const { error } = await new Resend(key).emails.send(
+    { from, to: mail.to, subject: mail.subject, html: mail.html, text: mail.text },
+    mail.idempotencyKey ? { idempotencyKey: mail.idempotencyKey } : undefined,
+  );
   if (error) throw new Error(`Envoi impossible : ${error.message}`);
 }
 
@@ -47,6 +50,16 @@ export function organizerMail(p: { santaName: string; url: string }): Content {
       url: p.url,
     }),
     text: `Ton événement « ${p.santaName} » est créé. Tableau de bord (lien secret) : ${p.url}`,
+  };
+}
+
+export function recoveryMail(events: { name: string; url: string }[]): Content {
+  return {
+    subject: "Retrouve tes accès organisateur Secret Santa",
+    html: layout("Tes accès organisateur", `<p>Voici les Secret Santa associés à ton adresse organisateur :</p><ul>${events.map((s) => `<li><a href="${esc(s.url)}">${esc(s.name)}</a></li>`).join("")}</ul><p>Ces liens sont valables une heure. Confirme l’ouverture de chaque tableau de bord pour obtenir un nouvel accès privé. L’ancien accès sera alors remplacé. Le tirage et les liens des participants restent inchangés.</p>`, {
+      label: "Mes Secret Santa", url: `${appUrl()}/mes-secret-santa`,
+    }, "Ces liens sont personnels. Si tu n’as pas fait cette demande, ignore cet e-mail : tes accès actuels restent valides."),
+    text: `Retrouve tes tableaux de bord Secret Santa :\n${events.map((s) => `${s.name} : ${s.url}`).join("\n")}\nLiens valables une heure. La confirmation remplace l’ancien accès organisateur, sans modifier le tirage ni les liens participants. Si tu n’as pas fait cette demande, ignore cet e-mail.`,
   };
 }
 

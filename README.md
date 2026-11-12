@@ -4,6 +4,10 @@ Organise un Secret Santa : création de l'événement, participants, tirage au s
 
 Stack : Next.js (App Router) + TypeScript + Tailwind, Neon Postgres + Drizzle, Resend, déployé sur Vercel.
 
+## Retrouver un accès organisateur
+
+Sur `/mes-secret-santa`, saisir l’adresse organisateur pour recevoir les accès aux événements existants. Chaque lien de récupération expire après une heure maximum. La confirmation remplace le lien organisateur précédent, sans modifier le tirage ni les liens participants. L’ouverture du mail ou du lien seule ne remplace aucun accès. Aucune migration ni variable supplémentaire n’est nécessaire ; l’envoi nécessite `RESEND_API_KEY`.
+
 ## Développement
 
 ```bash
