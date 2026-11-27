@@ -40,7 +40,7 @@ export function SnowLayer() {
         onClick={toggle}
         aria-pressed={on}
         aria-label={on ? "Couper la neige" : "Activer la neige"}
-        className="fixed bottom-4 right-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-neige text-rouge shadow-md ring-1 ring-or/60 hover:bg-or-pale"
+        className="snow-toggle fixed bottom-4 right-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-neige text-rouge shadow-md ring-1 ring-or/60 hover:bg-or-pale"
       >
         <Snowflake size={22} strokeWidth={1.5} className={on ? "" : "opacity-40"} />
       </button>

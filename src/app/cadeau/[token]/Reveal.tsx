@@ -4,20 +4,28 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import { MascotIcon } from "@/components/mascots/Mascots";
 import { markOpened } from "./actions";
+import { useReveal } from "./RevealState";
 
-export function Reveal({ token, receiverName, onOpen }: { token: string; receiverName: string; onOpen?: () => void }) {
-  const [open, setOpen] = useState(false);
+/**
+ * The gift box that opens on the participant's very first visit. Once the server has recorded
+ * opened_at, later visits go straight to the name, without the box.
+ */
+export function Reveal({ token, receiverName, alreadyOpened }: { token: string; receiverName: string; alreadyOpened: boolean }) {
+  // Initial state only: when the server re-renders after the first opening, the animation keeps going.
+  const [open, setOpen] = useState(alreadyOpened);
+  const [animated] = useState(!alreadyOpened);
+  const { setRevealed } = useReveal();
   const reduce = useReducedMotion();
-  const dur = reduce ? 0.2 : 1.2;
+  const dur = reduce || !animated ? 0.2 : 1.2;
 
   const unwrap = () => {
     setOpen(true);
-    onOpen?.();
-    void markOpened(token).catch(() => {});
+    // Show the menu once the opening is saved, so its pages agree the gift is open.
+    markOpened(token).catch(() => {}).finally(() => setRevealed(true));
   };
 
   return (
-    <div className="flex min-h-[380px] w-full flex-col items-center justify-center text-center">
+    <div className={`flex w-full flex-col items-center justify-center text-center ${animated ? "min-h-[380px]" : "min-h-[300px]"}`}>
       <AnimatePresence mode="wait">
         {!open ? (
           <motion.button
@@ -48,9 +56,9 @@ export function Reveal({ token, receiverName, onOpen }: { token: string; receive
         ) : (
           <motion.div
             key="name"
-            initial={{ opacity: 0, scale: reduce ? 1 : 0.8 }}
+            initial={{ opacity: 0, scale: reduce || !animated ? 1 : 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: dur * 0.6, delay: reduce ? 0 : 0.3 }}
+            transition={{ duration: dur * 0.6, delay: reduce || !animated ? 0 : 0.3 }}
             aria-live="polite"
           >
             <p className="font-script text-3xl text-or">Tu offres un cadeau à</p>

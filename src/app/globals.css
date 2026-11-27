@@ -56,6 +56,9 @@ body {
 }
 .rise-in { animation: rise-in 300ms ease-out both; }
 
+/* The participant's bottom menu takes the bottom of the screen: lift the snow switch above it. */
+body:has([data-bottom-nav]) .snow-toggle { bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 5rem); }
+
 @media (prefers-reduced-motion: reduce) {
   .rise-in { animation: none; }
   * { scroll-behavior: auto !important; }
