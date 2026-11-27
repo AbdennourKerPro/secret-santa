@@ -54,6 +54,8 @@ export const message = pgTable(
     giverId: uuid("giver_id").notNull().references(() => participant.id, { onDelete: "cascade" }),
     fromGiver: boolean("from_giver").notNull(),
     body: text("body").notNull(),
+    /** Set on the message that triggered a notification mail: at most one such mail per day and direction. */
+    notifiedAt: timestamp("notified_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("message_thread_idx").on(t.giverId, t.createdAt)],
