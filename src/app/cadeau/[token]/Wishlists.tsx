@@ -13,7 +13,7 @@ export function MyList({ token, initial }: { token: string; initial: string }) {
     <form action={action} className="grid gap-3">
       <p className="text-or-pale/85">Écris ta lettre au Père Noël. Seul ton Père Noël secret pourra la lire.</p>
       <label htmlFor="wishlist" className="sr-only">Ma liste au Père Noël</label>
-      <textarea id="wishlist" name="content" rows={7} maxLength={1000} defaultValue={initial} placeholder="Un livre de cuisine, des chaussettes rigolotes, du chocolat noir…" className={area} />
+      <textarea id="wishlist" name="content" rows={7} defaultValue={initial} placeholder="Un livre de cuisine, des chaussettes rigolotes, du chocolat noir…" className={area} />
       {state.errors?.content && <Notice kind="error">{state.errors.content.join(" ")}</Notice>}
       {state.error && <Notice kind="error">{state.error}</Notice>}
       {state.ok && <Notice kind="ok">{state.ok}</Notice>}
