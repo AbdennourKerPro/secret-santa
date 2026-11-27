@@ -22,11 +22,10 @@ export const eventSchema = createSantaSchema.pick({ name: true, exchangeDate: tr
 
 export const participantSchema = z.object({ name: text(60), email });
 
-export const MAX_WISHLIST = 1000;
 export const MAX_MESSAGE = 500;
 export const MAX_THREAD_MESSAGES = 200;
 
-export const wishlistSchema = z.object({ content: z.string().trim().max(MAX_WISHLIST, `${MAX_WISHLIST} caractères maximum`) });
+export const wishlistSchema = z.object({ content: z.string().trim() });
 export const messageSchema = z.object({ body: text(MAX_MESSAGE) });
 
 export type FieldErrors = Record<string, string[] | undefined>;
