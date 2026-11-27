@@ -15,6 +15,13 @@
       "when": 1794166931665,
       "tag": "0001_known_yellow_claw",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795810174792,
+      "tag": "0002_notification_quotidienne",
+      "breakpoints": true
     }
   ]
 }

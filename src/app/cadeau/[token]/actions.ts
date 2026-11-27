@@ -1,12 +1,14 @@
 "use server";
 
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { assignment, db, message, participant, santa, wishlist } from "@/db";
 import { messageMail, sendMail } from "@/lib/mail";
 import { participantByToken } from "@/lib/queries";
 import { hashToken } from "@/lib/tokens";
 import { fieldErrors, MAX_THREAD_MESSAGES, messageSchema, wishlistSchema, type FieldErrors } from "@/lib/validation";
+
+const MAIL_INTERVAL_MS = 24 * 60 * 60_000;
 
 export type ActionState = { ok?: string; error?: string; errors?: FieldErrors; at?: number };
 
@@ -61,16 +63,19 @@ export async function sendMessage(token: string, role: "out" | "in", _prev: Acti
   const [{ count }] = await db().select({ count: sql<number>`count(*)::int` }).from(message).where(eq(message.giverId, a.giverId));
   if (count >= MAX_THREAD_MESSAGES) return { error: "Cette conversation est pleine.", at: Date.now() };
 
-  // Only warn the other side by mail if this side has been quiet for a while (no mail storm during a chat).
-  const [last] = await db()
-    .select({ createdAt: message.createdAt })
+  // At most one notification mail per day and per direction, so a lively chat never floods the inbox.
+  const [lastMail] = await db()
+    .select({ notifiedAt: message.notifiedAt })
     .from(message)
-    .where(and(eq(message.giverId, a.giverId), eq(message.fromGiver, fromGiver)))
-    .orderBy(desc(message.createdAt))
+    .where(and(eq(message.giverId, a.giverId), eq(message.fromGiver, fromGiver), isNotNull(message.notifiedAt)))
+    .orderBy(desc(message.notifiedAt))
     .limit(1);
-  const shouldMail = !last || Date.now() - last.createdAt.getTime() > 30 * 60_000;
+  const shouldMail = !lastMail?.notifiedAt || Date.now() - lastMail.notifiedAt.getTime() >= MAIL_INTERVAL_MS;
 
-  await db().insert(message).values({ giverId: a.giverId, fromGiver, body: parsed.data.body });
+  const [saved] = await db()
+    .insert(message)
+    .values({ giverId: a.giverId, fromGiver, body: parsed.data.body, notifiedAt: shouldMail ? new Date() : null })
+    .returning({ id: message.id });
 
   if (shouldMail) {
     const [other] = await db()
@@ -84,6 +89,8 @@ export async function sendMessage(token: string, role: "out" | "in", _prev: Acti
         await sendMail({ to: other.email, ...messageMail({ santaName: ev?.name ?? s.name, toName: other.name, fromGiver, senderName: p.name }) });
       } catch (err) {
         console.error("Mail de notification non envoyé", err); // the message itself is saved
+        // The mail did not go out: free the daily slot so the next message can try again.
+        if (saved) await db().update(message).set({ notifiedAt: null }).where(eq(message.id, saved.id));
       }
     }
   }
