@@ -85,11 +85,13 @@ export function participantMail(p: {
 export function messageMail(p: { santaName: string; toName: string; fromGiver: boolean; senderName: string }): Content {
   const who = p.fromGiver ? "Ton Père Noël secret" : p.senderName;
   const action = p.fromGiver ? "t'a écrit" : "t'a répondu";
+  // Name of the entry in the participant's bottom menu that holds this conversation.
+  const tab = p.fromGiver ? "Père Noël" : p.senderName;
   return {
     subject: `${who} ${action} (Secret Santa « ${p.santaName} »)`,
     html: layout("Un nouveau message", `<p>Bonjour ${esc(p.toName)},</p>
 <p><strong>${esc(who)}</strong> ${action} dans le Secret Santa <strong>${esc(p.santaName)}</strong>.</p>
-<p>Pour le lire, rouvre ton lien personnel, celui du mail du tirage, et va dans l'onglet « Messages ».</p>`, { label: "Ouvrir Secret Santa", url: appUrl() }, "Pour garder le secret, ce mail ne contient ni le message ni de lien personnel."),
-    text: `Bonjour ${p.toName}, ${who} ${action} dans le Secret Santa « ${p.santaName} ». Pour le lire, rouvre ton lien personnel (celui du mail du tirage) et va dans l'onglet « Messages ».`,
+<p>Pour le lire, rouvre ton lien personnel, celui du mail du tirage, et ouvre « ${esc(tab)} » dans le menu en bas de page.</p>`, { label: "Ouvrir Secret Santa", url: appUrl() }, "Pour garder le secret, ce mail ne contient ni le message ni de lien personnel."),
+    text: `Bonjour ${p.toName}, ${who} ${action} dans le Secret Santa « ${p.santaName} ». Pour le lire, rouvre ton lien personnel (celui du mail du tirage) et ouvre « ${tab} » dans le menu en bas de page.`,
   };
 }

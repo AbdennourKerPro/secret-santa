@@ -10,12 +10,16 @@ import { fieldErrors, MAX_THREAD_MESSAGES, messageSchema, wishlistSchema, type F
 
 export type ActionState = { ok?: string; error?: string; errors?: FieldErrors; at?: number };
 
-/** Records the first time a participant opens their gift (the organizer sees "a ouvert son cadeau"). */
+/**
+ * Records the first time a participant opens their gift: the organizer sees "a ouvert son cadeau",
+ * and later visits skip the gift-box animation.
+ */
 export async function markOpened(token: string): Promise<void> {
   await db()
     .update(participant)
     .set({ openedAt: new Date() })
     .where(and(eq(participant.tokenHash, hashToken(token)), isNull(participant.openedAt)));
+  revalidatePath(`/cadeau/${token}`, "layout");
 }
 
 // Every action re-checks the personal token and that the draw happened.
@@ -33,7 +37,7 @@ export async function saveWishlist(token: string, _prev: ActionState, formData: 
     .insert(wishlist)
     .values({ participantId: p.id, content: parsed.data.content })
     .onConflictDoUpdate({ target: wishlist.participantId, set: { content: parsed.data.content, updatedAt: new Date() } });
-  revalidatePath(`/cadeau/${token}`);
+  revalidatePath(`/cadeau/${token}`, "layout");
   return { ok: "Ta liste est enregistrée. Ton Père Noël secret peut la lire.", at: Date.now() };
 }
 
@@ -83,6 +87,6 @@ export async function sendMessage(token: string, role: "out" | "in", _prev: Acti
       }
     }
   }
-  revalidatePath(`/cadeau/${token}`);
+  revalidatePath(`/cadeau/${token}`, "layout");
   return { ok: "Envoyé.", at: Date.now() };
 }
